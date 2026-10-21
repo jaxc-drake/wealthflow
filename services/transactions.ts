@@ -62,7 +62,7 @@ export async function createTransaction(
 export async function updateTransaction(
   id: string,
   userId: string,
-  updates: Partial<Omit<Transaction, "id" | "user_id" | "created_at">>
+  updates: Partial<Omit<Transaction, "id" | "user_id" | "created_at" | "updated_at">>
 ): Promise<Transaction> {
   const { data, error } = await supabase
     .from("transactions")

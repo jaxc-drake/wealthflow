@@ -28,6 +28,7 @@ export interface Database {
           monthly_budget?: number;
           currency?: string;
         };
+        Relationships: [];
       };
       transactions: {
         Row: {
@@ -59,6 +60,7 @@ export interface Database {
           source?: string;
           date?: string;
         };
+        Relationships: [];
       };
       export_logs: {
         Row: {
@@ -72,8 +74,11 @@ export interface Database {
           export_year: number;
         };
         Update: never;
+        Relationships: [];
       };
     };
+    Views: {};
+    Functions: {};
   };
 }
 
@@ -96,6 +101,7 @@ export interface Transaction {
   source: string;
   date: string;
   created_at: string;
+  updated_at: string;
 }
 
 export type FinancialStatus = "healthy" | "warning" | "over_budget" | "loss";

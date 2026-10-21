@@ -216,7 +216,7 @@ export default function TransactionsClient({ userId, transactions, currency }: P
                           <p className="text-sm font-display font-700 truncate">{tx.category}</p>
                           <p className="text-xs text-neo-muted truncate">{tx.source}</p>
                           {tx.description && (
-                            <p className="text-xs text-neo-muted italic truncate">"{tx.description}"</p>
+                            <p className="text-xs text-neo-muted italic truncate">&ldquo;{tx.description}&rdquo;</p>
                           )}
                         </div>
                         <div className="text-right shrink-0">
