@@ -7,7 +7,7 @@ import { deleteTransaction } from "@/services/transactions";
 import TransactionModal from "./TransactionModal";
 import {
   Plus, Search, Trash2, Pencil,
-  ArrowUpRight, ArrowDownLeft, Filter,
+  ArrowUpRight, ArrowDownLeft, Receipt,
 } from "lucide-react";
 import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
@@ -82,16 +82,21 @@ export default function TransactionsClient({ userId, transactions, currency }: P
   }, [list]);
 
   return (
-    <div className="px-4 pt-2 pb-4 max-w-lg mx-auto">
+    <div className="mx-auto max-w-lg px-4 pb-4 pt-1 animate-fade-in">
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="font-display font-800 text-2xl">Transaksi</h1>
+      <div className="mb-4 flex items-end justify-between gap-3">
+        <div>
+          <p className="y2k-eyebrow">Catatan uang</p>
+          <h1 className="mt-0.5 font-wordmark text-2xl uppercase leading-none tracking-[-0.04em]">
+            Transaksi
+          </h1>
+        </div>
         <button
           onClick={() => setShowAdd(true)}
-          className="neo-btn-yellow px-3 py-2 text-sm"
+          className="neo-btn-yellow px-3 py-2 text-xs"
         >
-          <Plus size={16} /> Tambah
+          <Plus size={15} /> Tambah
         </button>
       </div>
 
@@ -116,12 +121,12 @@ export default function TransactionsClient({ userId, transactions, currency }: P
               <button
                 key={f}
                 onClick={() => setFilterType(f)}
-                className={`flex-1 py-2 text-xs font-display font-700 transition-all ${
+                className={`flex-1 py-2 text-[10px] font-display font-800 uppercase tracking-wide transition-all ${
                   filterType === f
-                    ? f === "income" ? "bg-brand-green"
-                      : f === "expense" ? "bg-brand-pink"
-                      : "bg-brand-yellow"
-                    : "bg-white text-neo-muted"
+                    ? f === "income" ? "bg-brand-lime text-y2k-ink"
+                      : f === "expense" ? "bg-brand-purple text-white"
+                      : "bg-brand-lime text-y2k-ink"
+                    : "bg-white text-y2k-muted"
                 }`}
               >
                 {f === "all" ? "Semua" : f === "income" ? "Masuk" : "Keluar"}
@@ -149,20 +154,18 @@ export default function TransactionsClient({ userId, transactions, currency }: P
       {/* Summary strip */}
       {filtered.length > 0 && (
         <div className="flex gap-2 mb-4 text-xs">
-          <div className="flex-1 bg-brand-green border-2 border-neo-border rounded-xl px-3 py-2 text-center"
-               style={{ boxShadow: "2px 2px 0px #1A1A1A" }}>
-            <div className="font-display font-600 text-neo-muted mb-0.5">Total Masuk</div>
-            <div className="font-mono font-700">
+          <div className="flex-1 rounded-xl border-2 border-y2k-ink bg-brand-lime px-3 py-2 text-center shadow-hard-sm">
+            <div className="mb-0.5 font-display text-[9px] font-800 uppercase tracking-[0.12em]">Total Masuk</div>
+            <div className="font-mono text-xs font-700">
               {formatCurrency(
                 filtered.filter(t => t.type === "income").reduce((s, t) => s + t.amount, 0),
                 currency, true
               )}
             </div>
           </div>
-          <div className="flex-1 bg-brand-pink border-2 border-neo-border rounded-xl px-3 py-2 text-center"
-               style={{ boxShadow: "2px 2px 0px #1A1A1A" }}>
-            <div className="font-display font-600 text-neo-muted mb-0.5">Total Keluar</div>
-            <div className="font-mono font-700">
+          <div className="flex-1 rounded-xl border-2 border-y2k-ink bg-brand-purple px-3 py-2 text-center text-white shadow-hard-sm">
+            <div className="mb-0.5 font-display text-[9px] font-800 uppercase tracking-[0.12em]">Total Keluar</div>
+            <div className="font-mono text-xs font-700">
               {formatCurrency(
                 filtered.filter(t => t.type === "expense").reduce((s, t) => s + t.amount, 0),
                 currency, true
@@ -174,10 +177,12 @@ export default function TransactionsClient({ userId, transactions, currency }: P
 
       {/* Transaction List grouped by date */}
       {grouped.length === 0 ? (
-        <div className="text-center py-16">
-          <p className="text-4xl mb-3">📭</p>
-          <p className="font-display font-700 text-lg">Belum ada transaksi</p>
-          <p className="text-sm text-neo-muted mt-1">
+        <div className="flex flex-col items-center py-16 text-center">
+          <span className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border-3 border-y2k-ink bg-white shadow-hard">
+            <Receipt size={24} strokeWidth={2.4} />
+          </span>
+          <p className="font-wordmark text-lg uppercase tracking-[-0.03em]">Belum ada transaksi</p>
+          <p className="mt-1 text-sm text-y2k-muted">
             {search || filterType !== "all" || filterMonth
               ? "Coba ubah filter pencarian"
               : "Tap Tambah untuk mulai mencatat"}
@@ -188,21 +193,20 @@ export default function TransactionsClient({ userId, transactions, currency }: P
           {grouped.map(([date, txs]) => (
             <div key={date}>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-display font-700 bg-brand-yellow border-2 border-neo-border px-2 py-0.5 rounded-lg"
-                      style={{ boxShadow: "1px 1px 0px #1A1A1A" }}>
+                <span className="rounded-lg border-2 border-y2k-ink bg-brand-lime px-2 py-0.5 font-mono text-[10px] font-700 shadow-hard-sm">
                   {formatDate(date)}
                 </span>
-                <div className="flex-1 h-px bg-neo-border" />
+                <div className="h-0.5 flex-1 bg-y2k-ink/20" />
               </div>
 
               <div className="flex flex-col gap-2">
                 {txs.map((tx) => (
                   <div
                     key={tx.id}
-                    className="neo-card p-3 flex items-center gap-3"
+                    className="flex items-center gap-3 rounded-xl border-2 border-y2k-ink bg-white p-3 shadow-hard-sm"
                   >
-                    <div className={`w-10 h-10 rounded-xl border-2 border-neo-border flex items-center justify-center shrink-0 ${
-                      tx.type === "income" ? "bg-brand-green" : "bg-brand-pink"
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-y2k-ink ${
+                      tx.type === "income" ? "bg-brand-lime" : "bg-brand-purple text-white"
                     }`}>
                       {tx.type === "income"
                         ? <ArrowUpRight size={18} />
@@ -214,16 +218,14 @@ export default function TransactionsClient({ userId, transactions, currency }: P
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <p className="text-sm font-display font-700 truncate">{tx.category}</p>
-                          <p className="text-xs text-neo-muted truncate">{tx.source}</p>
+                          <p className="text-xs text-y2k-muted truncate">{tx.source}</p>
                           {tx.description && (
-                            <p className="text-xs text-neo-muted italic truncate">&ldquo;{tx.description}&rdquo;</p>
+                            <p className="text-xs text-y2k-muted italic truncate">&ldquo;{tx.description}&rdquo;</p>
                           )}
                         </div>
                         <div className="text-right shrink-0">
-                          <p className={`font-mono font-700 text-sm ${
-                            tx.type === "income" ? "text-green-700" : "text-red-600"
-                          }`}>
-                            {tx.type === "income" ? "+" : "-"}
+                          <p className="font-mono text-sm font-800 tracking-[-0.03em]">
+                            {tx.type === "income" ? "+" : "−"}
                             {formatCurrency(tx.amount, currency, true)}
                           </p>
                         </div>
@@ -233,16 +235,18 @@ export default function TransactionsClient({ userId, transactions, currency }: P
                     <div className="flex flex-col gap-1.5 shrink-0">
                       <button
                         onClick={() => setEditTx(tx)}
-                        className="w-7 h-7 flex items-center justify-center border-2 border-neo-border rounded-lg bg-brand-blue hover:scale-105 transition-transform"
+                        aria-label="Edit transaksi"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg border-2 border-y2k-ink bg-brand-blue transition-transform hover:scale-105"
                       >
                         <Pencil size={12} />
                       </button>
                       <button
                         onClick={() => handleDelete(tx.id)}
                         disabled={deletingId === tx.id}
-                        className="w-7 h-7 flex items-center justify-center border-2 border-neo-border rounded-lg bg-brand-red hover:scale-105 transition-transform"
+                        aria-label="Hapus transaksi"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg border-2 border-y2k-ink bg-brand-pink text-white transition-transform hover:scale-105"
                       >
-                        <Trash2 size={12} className="text-white" />
+                        <Trash2 size={12} />
                       </button>
                     </div>
                   </div>

@@ -70,63 +70,67 @@ export default function ExportClient({
   }
 
   return (
-    <div className="px-4 pt-2 pb-4 max-w-lg mx-auto flex flex-col gap-4 animate-fade-in">
+    <div className="mx-auto flex max-w-lg flex-col gap-4 px-4 pb-4 pt-1 animate-fade-in">
 
-      <h1 className="font-display font-800 text-2xl">📤 Export Data</h1>
+      <div>
+        <p className="y2k-eyebrow">Arsip tahunan</p>
+        <h1 className="mt-0.5 font-wordmark text-2xl uppercase leading-none tracking-[-0.04em]">
+          Export Data
+        </h1>
+      </div>
 
       {/* Year Summary */}
-      <div className="neo-card p-4 bg-brand-yellow border-3 border-neo-border"
-           style={{ boxShadow: "4px 4px 0px #1A1A1A" }}>
-        <p className="font-display font-700 text-sm mb-3">📊 Ringkasan {exportYear}</p>
+      <div className="y2k-card bg-brand-lime p-4">
+        <p className="mb-3 font-wordmark text-base uppercase tracking-[-0.03em]">
+          Ringkasan {exportYear}
+        </p>
         <div className="grid grid-cols-3 gap-3 text-center">
           <div>
-            <p className="text-xs text-neo-muted font-display mb-0.5">Pemasukan</p>
-            <p className="font-mono font-700 text-sm">
+            <p className="mb-0.5 font-display text-[9px] font-800 uppercase tracking-wide">Pemasukan</p>
+            <p className="font-mono text-xs font-700">
               {formatCurrency(totalIncome, profile?.currency, true)}
             </p>
           </div>
           <div>
-            <p className="text-xs text-neo-muted font-display mb-0.5">Pengeluaran</p>
-            <p className="font-mono font-700 text-sm">
+            <p className="mb-0.5 font-display text-[9px] font-800 uppercase tracking-wide">Pengeluaran</p>
+            <p className="font-mono text-xs font-700">
               {formatCurrency(totalExpense, profile?.currency, true)}
             </p>
           </div>
           <div>
-            <p className="text-xs text-neo-muted font-display mb-0.5">Net</p>
-            <p className={`font-mono font-700 text-sm ${
-              totalIncome - totalExpense >= 0 ? "text-green-800" : "text-red-700"
-            }`}>
+            <p className="mb-0.5 font-display text-[9px] font-800 uppercase tracking-wide">Net</p>
+            <p className="font-mono text-xs font-700">
               {formatCurrency(totalIncome - totalExpense, profile?.currency, true)}
             </p>
           </div>
         </div>
-        <p className="text-center text-xs text-neo-muted mt-3 font-display">
+        <p className="mt-3 text-center font-display text-[10px] font-700 uppercase tracking-wide">
           {transactions.length} transaksi tersimpan
         </p>
       </div>
 
       {/* Yearly Chart */}
       {transactions.length > 0 && (
-        <div className="neo-card p-4">
-          <h3 className="font-display font-700 mb-3">Tren {exportYear}</h3>
+        <div className="y2k-card p-4">
+          <h3 className="mb-3 font-wordmark text-base uppercase tracking-[-0.03em]">Tren {exportYear}</h3>
           <YearlyChart data={yearlyData} />
         </div>
       )}
 
       {/* Category Preview */}
       {expenseBreakdown.length > 0 && (
-        <div className="neo-card p-4">
-          <h3 className="font-display font-700 mb-3">Top Pengeluaran {exportYear}</h3>
-          <div className="flex flex-col gap-1.5">
+        <div className="y2k-card p-4">
+          <h3 className="mb-3 font-wordmark text-base uppercase tracking-[-0.03em]">Top Pengeluaran {exportYear}</h3>
+          <div className="flex flex-col gap-2">
             {expenseBreakdown.slice(0, 5).map((item, i) => (
-              <div key={item.category} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 flex items-center justify-center text-xs font-mono font-700 bg-brand-pink border-2 border-neo-border rounded">
+              <div key={item.category} className="flex items-center justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 border-y2k-ink bg-brand-purple font-mono text-[10px] font-700 text-white">
                     {i + 1}
                   </span>
-                  <span className="text-sm font-display font-600">{item.category}</span>
+                  <span className="truncate font-display text-xs font-600">{item.category}</span>
                 </div>
-                <span className="font-mono text-sm font-700">
+                <span className="shrink-0 font-mono text-xs font-700">
                   {formatCurrency(item.total, profile?.currency, true)}
                 </span>
               </div>
@@ -136,19 +140,21 @@ export default function ExportClient({
       )}
 
       {/* Export Info */}
-      <div className="neo-card p-4 border-brand-orange">
-        <div className="flex gap-3 mb-3">
-          <AlertTriangle size={20} className="text-brand-orange shrink-0 mt-0.5" />
+      <div className="y2k-card border-brand-orange p-4">
+        <div className="mb-3 flex gap-3">
+          <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border-2 border-y2k-ink bg-brand-orange">
+            <AlertTriangle size={16} strokeWidth={2.6} />
+          </span>
           <div>
-            <p className="font-display font-700 text-sm">Penting!</p>
-            <p className="text-xs text-neo-muted mt-0.5 leading-relaxed">
-              Export data hanya bisa dilakukan <strong>1 kali per tahun</strong>.
+            <p className="font-wordmark text-sm uppercase tracking-[-0.02em]">Penting!</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-y2k-muted">
+              Export data hanya bisa dilakukan <strong className="text-y2k-ink">1 kali per tahun</strong>.
               File Excel akan berisi semua transaksi, ringkasan bulanan, dan breakdown kategori.
             </p>
           </div>
         </div>
 
-        <div className="flex flex-col gap-1 text-xs font-display">
+        <div className="flex flex-col gap-1.5 font-display text-xs">
           <p className="flex items-center gap-2">
             <FileSpreadsheet size={14} />
             Sheet 1: Semua Transaksi ({transactions.length} baris)
@@ -166,11 +172,11 @@ export default function ExportClient({
 
       {/* Already Exported */}
       {(alreadyExported || done) && (
-        <div className="flex items-center gap-3 p-4 bg-gray-100 border-3 border-neo-border rounded-2xl">
-          <Lock size={20} className="text-neo-muted shrink-0" />
+        <div className="flex items-center gap-3 rounded-2xl border-3 border-y2k-ink bg-y2k-lavender p-4 shadow-hard-sm">
+          <Lock size={20} className="shrink-0 text-y2k-muted" />
           <div>
-            <p className="font-display font-700 text-sm">Sudah Diekspor</p>
-            <p className="text-xs text-neo-muted">
+            <p className="font-display text-sm font-700">Sudah Diekspor</p>
+            <p className="text-xs text-y2k-muted">
               {done
                 ? "File berhasil diunduh!"
                 : exportedAt
@@ -182,8 +188,8 @@ export default function ExportClient({
       )}
 
       {error && (
-        <div className="bg-red-50 border-2 border-red-400 rounded-xl px-4 py-3 text-sm text-red-700 font-display">
-          ⚠️ {error}
+        <div className="rounded-xl border-2 border-brand-red bg-brand-red/10 px-4 py-3 font-display text-sm text-brand-red">
+          {error}
         </div>
       )}
 
@@ -191,17 +197,16 @@ export default function ExportClient({
       <button
         onClick={handleExport}
         disabled={alreadyExported || done || exporting || transactions.length === 0}
-        className={`neo-btn w-full h-14 text-base font-display font-700 ${
+        className={`neo-btn h-14 w-full text-base ${
           alreadyExported || done
-            ? "bg-gray-200 text-neo-muted cursor-not-allowed border-gray-300"
+            ? "cursor-not-allowed border-y2k-ink/30 bg-gray-200 text-y2k-muted shadow-none"
             : "neo-btn-black"
         }`}
-        style={!(alreadyExported || done) ? { boxShadow: "4px 4px 0px #1A1A1A" } : {}}
       >
         {exporting ? (
           <span className="animate-pulse">Mengekspor...</span>
         ) : done ? (
-          "✅ File Terunduh!"
+          "File Terunduh!"
         ) : alreadyExported ? (
           <>
             <Lock size={18} /> Sudah Digunakan
@@ -217,7 +222,7 @@ export default function ExportClient({
       </button>
 
       {transactions.length === 0 && (
-        <p className="text-center text-sm text-neo-muted font-display">
+        <p className="text-center font-display text-sm text-y2k-muted">
           Belum ada transaksi di tahun {exportYear}
         </p>
       )}

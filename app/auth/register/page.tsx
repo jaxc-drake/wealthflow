@@ -47,17 +47,19 @@ export default function RegisterPage() {
   if (success) {
     return (
       <div className="neo-card-lg p-8 text-center animate-slide-up">
-        <div className="text-5xl mb-4">🎉</div>
-        <h2 className="text-2xl font-display font-700 mb-2">Akun Dibuat!</h2>
-        <p className="text-neo-muted">Mengarahkan ke dashboard...</p>
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border-3 border-y2k-ink bg-brand-lime shadow-hard">
+          <UserPlus size={26} strokeWidth={2.8} />
+        </div>
+        <h2 className="mb-2 font-wordmark text-2xl uppercase tracking-[-0.03em]">Akun Dibuat!</h2>
+        <p className="text-y2k-muted">Mengarahkan ke dashboard...</p>
       </div>
     );
   }
 
   return (
     <div className="neo-card-lg p-6 animate-slide-up">
-      <h2 className="text-2xl font-display font-700 mb-1">Daftar</h2>
-      <p className="text-sm text-neo-muted mb-6">Mulai kelola keuanganmu! 🚀</p>
+      <h2 className="font-wordmark text-2xl uppercase tracking-[-0.03em]">Daftar</h2>
+      <p className="mb-6 mt-1 text-sm text-y2k-muted">Mulai kelola keuanganmu.</p>
 
       <form onSubmit={handleRegister} className="flex flex-col gap-4">
         <div>
@@ -107,8 +109,8 @@ export default function RegisterPage() {
         </div>
 
         {error && (
-          <div className="neo-badge bg-brand-pink text-white border-brand-red w-full justify-center py-2">
-            ⚠️ {error}
+          <div className="w-full rounded-xl border-2 border-brand-red bg-brand-red/10 px-3 py-2 text-center text-sm text-brand-red">
+            {error}
           </div>
         )}
 
@@ -128,11 +130,11 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      <p className="text-center text-sm mt-5 text-neo-muted">
+      <p className="mt-5 text-center text-sm text-y2k-muted">
         Sudah punya akun?{" "}
         <Link
           href="/auth/login"
-          className="font-display font-700 text-neo-text underline underline-offset-2"
+          className="font-display font-800 text-y2k-ink underline decoration-2 underline-offset-2"
         >
           Masuk
         </Link>

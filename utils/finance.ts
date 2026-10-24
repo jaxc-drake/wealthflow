@@ -12,6 +12,7 @@ import {
   startOfYear,
   endOfYear,
   eachMonthOfInterval,
+  subMonths,
 } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 
@@ -118,6 +119,43 @@ export function calcYearlyData(
     const monthly = transactions.filter((t) => {
       const d = new Date(t.date);
       return d >= monthStart && d <= monthEnd;
+    });
+
+    const income = monthly
+      .filter((t) => t.type === "income")
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const expense = monthly
+      .filter((t) => t.type === "expense")
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    return {
+      month: format(monthDate, "MMM", { locale: localeId }),
+      income,
+      expense,
+      balance: income - expense,
+    };
+  });
+}
+
+// ============================================
+// RECENT MONTHS (dashboard trend)
+// ============================================
+export function calcRecentMonths(
+  transactions: Transaction[],
+  endDate: Date = new Date(),
+  count = 6
+): YearlyData[] {
+  const end = startOfMonth(endDate);
+
+  return Array.from({ length: count }, (_, i) => {
+    const monthDate = subMonths(end, count - 1 - i);
+    const start = startOfMonth(monthDate);
+    const finish = endOfMonth(monthDate);
+
+    const monthly = transactions.filter((t) => {
+      const d = new Date(t.date);
+      return d >= start && d <= finish;
     });
 
     const income = monthly

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getAvatarSignedUrl } from "@/lib/supabase/avatar";
 import { redirect } from "next/navigation";
 import SettingsClient from "@/components/settings/SettingsClient";
 
@@ -13,5 +14,7 @@ export default async function SettingsPage() {
     .eq("id", user.id)
     .single();
 
-  return <SettingsClient profile={profile} />;
+  const avatarUrl = await getAvatarSignedUrl(supabase, profile?.avatar_url ?? null);
+
+  return <SettingsClient profile={profile} initialAvatarUrl={avatarUrl} />;
 }

@@ -1,30 +1,88 @@
 "use client";
 
 import { useState } from "react";
-import type { Profile, Transaction } from "@/lib/supabase/types";
+import Link from "next/link";
+import { format } from "date-fns";
+import { id as localeId } from "date-fns/locale";
+import { AlertTriangle, Check, ChevronLeft, ChevronRight, X } from "lucide-react";
+import type {
+  FinancialStatus,
+  Profile,
+  Transaction,
+  YearlyData,
+} from "@/lib/supabase/types";
 import {
   calcMonthlyStats,
-  calcYearlyData,
   calcCategoryBreakdown,
-  calcTopSources,
+  calcRecentMonths,
   formatCurrency,
   STATUS_CONFIG,
-  getCurrentYear,
 } from "@/utils/finance";
 import StatusCard from "@/components/dashboard/StatusCard";
 import BudgetBar from "@/components/dashboard/BudgetBar";
-import MonthlyChart from "@/components/charts/MonthlyChart";
-import YearlyChart from "@/components/charts/YearlyChart";
+import PixelTrendChart from "@/components/charts/PixelTrendChart";
 import BreakdownList from "@/components/dashboard/BreakdownList";
 import QuickAddButton from "@/components/transactions/QuickAddButton";
 import RecentTransactions from "@/components/dashboard/RecentTransactions";
-import { format } from "date-fns";
-import { id as localeId } from "date-fns/locale";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Props {
   profile: Profile | null;
   transactions: Transaction[];
+}
+
+const STATUS_PILL: Record<FinancialStatus, string> = {
+  healthy: "bg-brand-lime text-y2k-ink",
+  warning: "bg-brand-orange text-y2k-ink",
+  over_budget: "bg-brand-red text-white",
+  loss: "bg-brand-pink text-white",
+};
+
+const MOMENTUM: Record<FinancialStatus, string> = {
+  healthy: "On Track",
+  warning: "Watch It",
+  over_budget: "Over Limit",
+  loss: "Deficit",
+};
+
+function StatusIcon({ status }: { status: FinancialStatus }) {
+  if (status === "healthy") return <Check size={9} strokeWidth={4} />;
+  if (status === "warning") return <AlertTriangle size={8} strokeWidth={4} />;
+  return <X size={9} strokeWidth={4} />;
+}
+
+function Sparkline({ data }: { data: YearlyData[] }) {
+  const values = data.map((d) => d.balance);
+  const min = Math.min(...values, 0);
+  const max = Math.max(...values, 1);
+  const range = max - min || 1;
+  const width = 112;
+  const height = 38;
+
+  const points = values
+    .map((value, i) => {
+      const x = values.length === 1 ? width / 2 : (i / (values.length - 1)) * width;
+      const y = height - 3 - ((value - min) / range) * (height - 6);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      className="h-10 w-24 shrink-0 sm:w-28"
+      fill="none"
+      aria-hidden="true"
+    >
+      <polyline
+        points={points}
+        stroke="#0A0A0A"
+        strokeWidth="3"
+        strokeLinejoin="miter"
+        strokeLinecap="square"
+        shapeRendering="crispEdges"
+      />
+    </svg>
+  );
 }
 
 export default function DashboardClient({ profile, transactions }: Props) {
@@ -38,145 +96,174 @@ export default function DashboardClient({ profile, transactions }: Props) {
     profile?.monthly_budget || 0,
     viewDate
   );
-  const yearlyData = calcYearlyData(transactions, viewYear);
-  const incomeBreakdown = calcCategoryBreakdown(transactions.filter(t => {
-    const d = new Date(t.date);
-    return d.getMonth() === viewMonth && d.getFullYear() === viewYear;
-  }), "income");
-  const expenseBreakdown = calcCategoryBreakdown(transactions.filter(t => {
-    const d = new Date(t.date);
-    return d.getMonth() === viewMonth && d.getFullYear() === viewYear;
-  }), "expense");
-  const topIncomeSources = calcTopSources(transactions, "income", 3);
+  const recentTrend = calcRecentMonths(transactions, viewDate, 6);
+  const expenseBreakdown = calcCategoryBreakdown(
+    transactions.filter((t) => {
+      const d = new Date(t.date);
+      return d.getMonth() === viewMonth && d.getFullYear() === viewYear;
+    }),
+    "expense"
+  );
   const statusCfg = STATUS_CONFIG[stats.status];
 
   function prevMonth() {
-    if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
-    else setViewMonth(m => m - 1);
+    if (viewMonth === 0) { setViewMonth(11); setViewYear((y) => y - 1); }
+    else setViewMonth((m) => m - 1);
   }
   function nextMonth() {
     const isCurrentMonth = viewMonth === now.getMonth() && viewYear === now.getFullYear();
     if (isCurrentMonth) return;
-    if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1); }
-    else setViewMonth(m => m + 1);
+    if (viewMonth === 11) { setViewMonth(0); setViewYear((y) => y + 1); }
+    else setViewMonth((m) => m + 1);
   }
 
   const isCurrentMonth = viewMonth === now.getMonth() && viewYear === now.getFullYear();
 
   return (
-    <div className="px-4 pt-2 pb-4 max-w-lg mx-auto flex flex-col gap-4 animate-fade-in">
+    <>
+      <div className="mx-auto flex max-w-lg flex-col gap-4 px-4 pb-3 pt-1 animate-fade-in">
 
-      {/* Month Selector */}
-      <div className="flex items-center justify-between">
-        <button onClick={prevMonth} className="neo-btn-white w-9 h-9 p-0 justify-center">
-          <ChevronLeft size={18} />
-        </button>
-        <h2 className="font-display font-700 text-lg capitalize">
-          {format(viewDate, "MMMM yyyy", { locale: localeId })}
-        </h2>
-        <button
-          onClick={nextMonth}
-          disabled={isCurrentMonth}
-          className={`neo-btn-white w-9 h-9 p-0 justify-center ${isCurrentMonth ? "opacity-30 cursor-not-allowed" : ""}`}
-        >
-          <ChevronRight size={18} />
-        </button>
-      </div>
+        {/* Month selector */}
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="y2k-eyebrow">Ringkasan</p>
+            <h1 className="mt-0.5 font-wordmark text-[20px] uppercase leading-none tracking-[-0.04em]">
+              {isCurrentMonth ? "Bulan Ini" : "Arsip"}
+            </h1>
+          </div>
 
-      {/* Status Banner */}
-      <div
-        className={`${statusCfg.bg} border-3 border-neo-border rounded-2xl p-4 flex items-center justify-between`}
-        style={{ boxShadow: "4px 4px 0px #1A1A1A" }}
-      >
-        <div>
-          <p className="text-xs font-display font-600 opacity-70 mb-0.5">Status Keuangan</p>
-          <p className={`text-xl font-display font-800 ${statusCfg.color}`}>
-            {statusCfg.emoji} {statusCfg.label}
-          </p>
+          <div className="flex items-center gap-1 rounded-full border-3 border-y2k-ink bg-white p-1 shadow-hard-sm">
+            <button
+              type="button"
+              onClick={prevMonth}
+              aria-label="Bulan sebelumnya"
+              className="flex h-7 w-7 items-center justify-center rounded-full transition-colors hover:bg-y2k-lime"
+            >
+              <ChevronLeft size={15} strokeWidth={2.8} />
+            </button>
+            <span className="min-w-[62px] text-center font-mono text-[10px] font-800 uppercase tracking-tight">
+              {format(viewDate, "MMM yyyy", { locale: localeId })}
+            </span>
+            <button
+              type="button"
+              onClick={nextMonth}
+              disabled={isCurrentMonth}
+              aria-label="Bulan berikutnya"
+              className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${
+                isCurrentMonth ? "cursor-not-allowed opacity-25" : "hover:bg-y2k-lime"
+              }`}
+            >
+              <ChevronRight size={15} strokeWidth={2.8} />
+            </button>
+          </div>
         </div>
-        <div className="text-right">
-          <p className="text-xs font-display font-600 opacity-70 mb-0.5">Saldo</p>
-          <p className="font-mono font-700 text-lg">
-            {formatCurrency(stats.balance, profile?.currency, true)}
+
+        {/* Chrome balance card */}
+        <section className="chrome relative overflow-hidden rounded-[30px] border-4 border-y2k-ink p-4 pb-4 shadow-hard-lg sm:p-5">
+          <div className="flex items-start justify-between gap-3">
+            <p className="font-display text-[11px] font-800 uppercase tracking-[0.26em]">
+              Saldo
+            </p>
+            <span className="holo -rotate-3 rounded-full border-2 border-y2k-ink px-3 py-1 font-display text-[8px] font-800 uppercase tracking-[0.16em] shadow-hard-sm">
+              {MOMENTUM[stats.status]}
+            </span>
+          </div>
+
+          <p className="mt-1 whitespace-nowrap font-mono text-[clamp(1.9rem,10.5vw,3.15rem)] font-800 leading-none tracking-[-0.075em]">
+            {formatCurrency(stats.balance, profile?.currency)}
           </p>
+
+          <div className="mt-4 flex items-end justify-between gap-3">
+            <span
+              className={`inline-flex items-center gap-2 rounded-full border-2 border-y2k-ink px-2.5 py-1.5 shadow-hard-sm ${STATUS_PILL[stats.status]}`}
+            >
+              <span className="flex h-4 w-4 items-center justify-center rounded-full border-2 border-y2k-ink bg-y2k-ink text-y2k-lime">
+                <StatusIcon status={stats.status} />
+              </span>
+              <span className="font-display text-[9px] font-800 uppercase tracking-[0.14em]">
+                {statusCfg.label}
+              </span>
+            </span>
+
+            <Sparkline data={recentTrend} />
+          </div>
+        </section>
+
+        {/* Income / expense */}
+        <div className="grid grid-cols-2 gap-3">
+          <StatusCard
+            label="Pemasukan"
+            value={stats.totalIncome}
+            currency={profile?.currency}
+            tone="lime"
+          />
+          <StatusCard
+            label="Pengeluaran"
+            value={stats.totalExpense}
+            currency={profile?.currency}
+            tone="purple"
+          />
         </div>
+
+        {(profile?.monthly_budget || 0) > 0 && (
+          <BudgetBar
+            budget={profile?.monthly_budget || 0}
+            expense={stats.totalExpense}
+            percent={stats.budgetUsedPercent}
+            remaining={stats.remainingBudget}
+            currency={profile?.currency}
+            status={stats.status}
+          />
+        )}
+
+        {/* 6 month trend */}
+        <section className="y2k-card p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="font-wordmark text-lg uppercase leading-none tracking-[-0.04em]">
+              Tren 6 Bulan
+            </h3>
+          </div>
+          <PixelTrendChart data={recentTrend} currency={profile?.currency} />
+        </section>
+
+        {/* Top expenses */}
+        <section className="y2k-card p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="font-wordmark text-lg uppercase leading-none tracking-[-0.04em]">
+              Top Pengeluaran
+            </h3>
+            <span className="font-mono text-[9px] font-700 uppercase text-y2k-muted">
+              {expenseBreakdown.length} kategori
+            </span>
+          </div>
+          <BreakdownList
+            items={expenseBreakdown}
+            currency={profile?.currency}
+            type="expense"
+          />
+        </section>
+
+        {/* Recent transactions */}
+        <section className="y2k-card p-4">
+          <div className="mb-1 flex items-center justify-between">
+            <h3 className="font-wordmark text-lg uppercase leading-none tracking-[-0.04em]">
+              Transaksi Terbaru
+            </h3>
+            <Link
+              href="/dashboard/transactions"
+              className="font-display text-[9px] font-800 uppercase tracking-[0.12em] underline decoration-2 underline-offset-4"
+            >
+              Semua →
+            </Link>
+          </div>
+          <RecentTransactions
+            transactions={transactions.slice(0, 5)}
+            currency={profile?.currency}
+          />
+        </section>
       </div>
 
-      {/* Stat Cards Grid */}
-      <div className="grid grid-cols-2 gap-3">
-        <StatusCard
-          label="Pemasukan"
-          value={stats.totalIncome}
-          currency={profile?.currency}
-          emoji="📈"
-          color="bg-brand-green"
-        />
-        <StatusCard
-          label="Pengeluaran"
-          value={stats.totalExpense}
-          currency={profile?.currency}
-          emoji="📉"
-          color="bg-brand-pink"
-        />
-      </div>
-
-      {/* Budget Bar */}
-      {(profile?.monthly_budget || 0) > 0 && (
-        <BudgetBar
-          budget={profile?.monthly_budget || 0}
-          expense={stats.totalExpense}
-          percent={stats.budgetUsedPercent}
-          remaining={stats.remainingBudget}
-          currency={profile?.currency}
-          status={stats.status}
-        />
-      )}
-
-      {/* Quick Add Button */}
       <QuickAddButton userId={profile?.id || ""} />
-
-      {/* Monthly Chart */}
-      <div className="neo-card p-4">
-        <h3 className="font-display font-700 mb-3">Bulan Ini vs Bulan Lalu</h3>
-        <MonthlyChart
-          currentIncome={stats.totalIncome}
-          currentExpense={stats.totalExpense}
-          yearlyData={yearlyData}
-          currentMonth={viewMonth}
-        />
-      </div>
-
-      {/* Yearly Trend */}
-      <div className="neo-card p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-display font-700">Tren {viewYear}</h3>
-          <span className="text-xs neo-badge bg-brand-blue">12 Bulan</span>
-        </div>
-        <YearlyChart data={yearlyData} />
-      </div>
-
-      {/* Breakdown */}
-      <div className="grid grid-cols-1 gap-3">
-        <div className="neo-card p-4">
-          <h3 className="font-display font-700 mb-3">📈 Top Pemasukan</h3>
-          <BreakdownList items={incomeBreakdown} currency={profile?.currency} type="income" />
-        </div>
-        <div className="neo-card p-4">
-          <h3 className="font-display font-700 mb-3">📉 Top Pengeluaran</h3>
-          <BreakdownList items={expenseBreakdown} currency={profile?.currency} type="expense" />
-        </div>
-      </div>
-
-      {/* Recent Transactions */}
-      <div className="neo-card p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-display font-700">Transaksi Terbaru</h3>
-        </div>
-        <RecentTransactions
-          transactions={transactions.slice(0, 5)}
-          currency={profile?.currency}
-        />
-      </div>
-    </div>
+    </>
   );
 }

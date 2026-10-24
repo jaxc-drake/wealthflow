@@ -1,3 +1,4 @@
+import { Target } from "lucide-react";
 import { formatCurrency } from "@/utils/finance";
 import type { FinancialStatus } from "@/lib/supabase/types";
 
@@ -11,54 +12,66 @@ interface BudgetBarProps {
 }
 
 const BAR_COLORS: Record<FinancialStatus, string> = {
-  healthy: "bg-brand-green",
-  warning: "bg-brand-yellow",
+  healthy: "bg-brand-lime",
+  warning: "bg-brand-orange",
   over_budget: "bg-brand-red",
   loss: "bg-brand-pink",
 };
 
-export default function BudgetBar({ budget, expense, percent, remaining, currency, status }: BudgetBarProps) {
+export default function BudgetBar({
+  budget,
+  expense,
+  percent,
+  remaining,
+  currency,
+  status,
+}: BudgetBarProps) {
   const clampedPercent = Math.min(percent, 100);
   const barColor = BAR_COLORS[status];
 
   return (
-    <div className="neo-card p-4">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="font-display font-700 text-sm">🎯 Budget Bulan Ini</h3>
-        <span className="font-mono font-700 text-sm">
+    <div className="y2k-card p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="flex items-center gap-2 font-wordmark text-base uppercase leading-none tracking-[-0.03em]">
+          <Target size={17} strokeWidth={2.7} />
+          Budget Bulan Ini
+        </h3>
+        <span className="rounded-full border-2 border-y2k-ink bg-white px-2 py-0.5 font-mono text-[11px] font-800">
           {percent.toFixed(0)}%
         </span>
       </div>
 
-      {/* Progress Bar */}
-      <div className="w-full h-5 bg-gray-100 border-3 border-neo-border rounded-lg overflow-hidden mb-3">
+      <div className="mb-3 h-6 w-full overflow-hidden rounded-lg border-2 border-y2k-ink bg-y2k-lilac">
         <div
-          className={`h-full ${barColor} transition-all duration-500 ease-out`}
+          className={`pixel-meter h-full ${barColor} transition-all duration-500 ease-out`}
           style={{ width: `${clampedPercent}%` }}
         />
       </div>
 
-      <div className="flex items-center justify-between text-xs font-display">
+      <div className="flex items-center justify-between gap-2 font-display text-[10px] font-700 uppercase tracking-wide">
         <div>
-          <span className="text-neo-muted">Terpakai: </span>
-          <span className="font-700">{formatCurrency(expense, currency, true)}</span>
+          <span className="text-y2k-muted">Terpakai </span>
+          <span className="font-mono">{formatCurrency(expense, currency, true)}</span>
         </div>
         <div className="text-right">
-          <span className="text-neo-muted">Limit: </span>
-          <span className="font-700">{formatCurrency(budget, currency, true)}</span>
+          <span className="text-y2k-muted">Limit </span>
+          <span className="font-mono">{formatCurrency(budget, currency, true)}</span>
         </div>
       </div>
 
       {status === "over_budget" ? (
-        <div className="mt-2 bg-brand-red border-2 border-neo-border rounded-lg px-3 py-1.5 text-center">
-          <span className="text-xs font-display font-700 text-white">
-            🚨 Over Budget {formatCurrency(expense - budget, currency, true)}!
+        <div className="mt-2 rounded-lg border-2 border-y2k-ink bg-brand-red px-3 py-1.5 text-center">
+          <span className="font-display text-[10px] font-800 uppercase tracking-wide text-white">
+            Over budget {formatCurrency(expense - budget, currency, true)}
           </span>
         </div>
       ) : (
-        <div className="mt-2 bg-neo-bg border-2 border-neo-border rounded-lg px-3 py-1.5 text-center">
-          <span className="text-xs font-display font-600 text-neo-muted">
-            Sisa budget: <strong className="text-neo-text">{formatCurrency(remaining, currency, true)}</strong>
+        <div className="mt-2 rounded-lg border-2 border-y2k-ink bg-y2k-lavender px-3 py-1.5 text-center">
+          <span className="font-display text-[10px] font-600 uppercase tracking-wide text-y2k-muted">
+            Sisa budget{" "}
+            <strong className="font-mono text-y2k-ink">
+              {formatCurrency(remaining, currency, true)}
+            </strong>
           </span>
         </div>
       )}

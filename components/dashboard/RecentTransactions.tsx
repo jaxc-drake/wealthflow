@@ -1,61 +1,108 @@
 import type { Transaction } from "@/lib/supabase/types";
 import { formatCurrency, formatDate } from "@/utils/finance";
-import Link from "next/link";
-import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import {
+  Briefcase, Car, CreditCard, Film, Gift, GraduationCap, Heart, Laptop,
+  MoreHorizontal, PiggyBank, Receipt, ShoppingBag, Store, TrendingUp,
+  Utensils, type LucideIcon,
+} from "lucide-react";
+import { format } from "date-fns";
+import { id as localeId } from "date-fns/locale";
 
 interface Props {
   transactions: Transaction[];
   currency?: string;
 }
 
+const ICONS: Record<string, LucideIcon> = {
+  "Makan & Minum": Utensils,
+  Transport: Car,
+  Belanja: ShoppingBag,
+  Kesehatan: Heart,
+  Hiburan: Film,
+  Pendidikan: GraduationCap,
+  Tagihan: Receipt,
+  Cicilan: CreditCard,
+  Tabungan: PiggyBank,
+  Gaji: Briefcase,
+  Freelance: Laptop,
+  Bisnis: Store,
+  Investasi: TrendingUp,
+  Bonus: Gift,
+  Hadiah: Gift,
+  Lainnya: MoreHorizontal,
+};
+
+const TILE_STYLES: Record<string, string> = {
+  "Makan & Minum": "bg-brand-pink text-white",
+  Transport: "bg-brand-lime text-y2k-ink",
+  Belanja: "bg-brand-blue text-y2k-ink",
+  Kesehatan: "bg-brand-orange text-y2k-ink",
+  Hiburan: "bg-brand-purple text-white",
+  Pendidikan: "bg-brand-purple text-white",
+  Tagihan: "bg-brand-blue text-y2k-ink",
+  Cicilan: "bg-brand-orange text-y2k-ink",
+  Tabungan: "bg-brand-lime text-y2k-ink",
+  Gaji: "bg-brand-purple text-white",
+  Freelance: "bg-brand-purple text-white",
+  Bisnis: "bg-brand-purple text-white",
+  Investasi: "bg-brand-lime text-y2k-ink",
+  Bonus: "bg-brand-pink text-white",
+  Hadiah: "bg-brand-pink text-white",
+};
+
+function formatTxDate(tx: Transaction) {
+  const value = tx.created_at || tx.date;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return formatDate(tx.date);
+  return format(date, "dd MMM yyyy, HH:mm", { locale: localeId });
+}
+
 export default function RecentTransactions({ transactions, currency }: Props) {
   if (!transactions.length) {
     return (
-      <div className="text-center py-6">
-        <p className="text-3xl mb-2">📭</p>
-        <p className="text-sm text-neo-muted font-display">Belum ada transaksi</p>
-        <p className="text-xs text-neo-muted mt-1">Tap tombol + untuk mulai mencatat</p>
+      <div className="flex flex-col items-center py-7 text-center">
+        <span className="mb-2 flex h-11 w-11 items-center justify-center rounded-xl border-2 border-y2k-ink bg-y2k-lavender shadow-hard-sm">
+          <Receipt size={20} strokeWidth={2.4} />
+        </span>
+        <p className="font-display text-sm font-700">Belum ada transaksi</p>
+        <p className="mt-0.5 text-xs text-y2k-muted">Tap tombol + untuk mulai mencatat</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      {transactions.map((tx) => (
-        <div
-          key={tx.id}
-          className="flex items-center gap-3 p-2 rounded-xl border-2 border-neo-border bg-neo-bg"
-          style={{ boxShadow: "2px 2px 0px #1A1A1A" }}
-        >
-          <div className={`w-9 h-9 rounded-lg border-2 border-neo-border flex items-center justify-center shrink-0 ${
-            tx.type === "income" ? "bg-brand-green" : "bg-brand-pink"
-          }`}>
-            {tx.type === "income"
-              ? <ArrowUpRight size={16} />
-              : <ArrowDownLeft size={16} />
-            }
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-display font-700 truncate">{tx.category}</p>
-            <p className="text-xs text-neo-muted truncate">{tx.source}</p>
-          </div>
-          <div className="text-right shrink-0">
-            <p className={`text-sm font-mono font-700 ${
-              tx.type === "income" ? "text-green-700" : "text-red-600"
-            }`}>
-              {tx.type === "income" ? "+" : "-"}
-              {formatCurrency(tx.amount, currency, true)}
+    <div className="flex flex-col">
+      {transactions.map((tx) => {
+        const Icon = ICONS[tx.category] || (tx.type === "income" ? Briefcase : Receipt);
+        const tile = TILE_STYLES[tx.category] || (tx.type === "income"
+          ? "bg-brand-purple text-white"
+          : "bg-brand-pink text-white");
+
+        return (
+          <div
+            key={tx.id}
+            className="flex items-center gap-3 border-b-2 border-y2k-ink/15 py-2.5 last:border-b-0 last:pb-0 first:pt-1"
+          >
+            <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-y2k-ink ${tile}`}>
+              <Icon size={18} strokeWidth={2.6} />
+            </span>
+
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-display text-[13px] font-700 leading-tight">
+                {tx.source}
+              </p>
+              <p className="mt-0.5 truncate font-mono text-[9px] uppercase tracking-wide text-y2k-muted">
+                {formatTxDate(tx)} · {tx.category}
+              </p>
+            </div>
+
+            <p className="shrink-0 font-mono text-xs font-800 tracking-[-0.03em]">
+              {tx.type === "income" ? "+" : "−"}
+              {formatCurrency(tx.amount, currency)}
             </p>
-            <p className="text-xs text-neo-muted">{formatDate(tx.date)}</p>
           </div>
-        </div>
-      ))}
-      <Link
-        href="/dashboard/transactions"
-        className="neo-btn-white w-full mt-1 text-sm justify-center"
-      >
-        Lihat Semua Transaksi →
-      </Link>
+        );
+      })}
     </div>
   );
 }

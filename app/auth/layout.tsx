@@ -1,17 +1,22 @@
+import { Zap } from "lucide-react";
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-dvh dotted-bg flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-yellow border-3 border-neo-border rounded-2xl mb-3"
-               style={{ boxShadow: "4px 4px 0px #1A1A1A" }}>
-            <span className="text-3xl">💰</span>
+    <div className="dotted-bg flex min-h-dvh items-center justify-center p-4">
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="checker absolute -left-16 -top-12 h-56 w-56 rotate-6 opacity-60" />
+        <div className="checker absolute -right-20 top-1/3 h-48 w-48 -rotate-6 opacity-40" />
+      </div>
+
+      <div className="relative w-full max-w-sm">
+        <div className="mb-8 text-center">
+          <div className="chrome mx-auto flex h-16 w-16 rotate-3 items-center justify-center rounded-full border-4 border-y2k-ink shadow-hard-lg">
+            <Zap size={30} className="fill-y2k-ink" strokeWidth={2.2} />
           </div>
-          <h1 className="text-3xl font-display font-800 text-neo-text">
-            WealthFlow
-          </h1>
-          <p className="text-sm text-neo-muted mt-1">Catat & Kelola Keuanganmu</p>
+          <h1 className="wordmark mt-4 text-[42px]">WealthFlow</h1>
+          <p className="mt-1 font-display text-[10px] font-800 uppercase tracking-[0.2em] text-y2k-muted">
+            Catat & kelola keuanganmu
+          </p>
         </div>
         {children}
       </div>

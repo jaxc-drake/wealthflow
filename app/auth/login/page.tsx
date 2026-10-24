@@ -39,8 +39,8 @@ export default function LoginPage() {
 
   return (
     <div className="neo-card-lg p-6 animate-slide-up">
-      <h2 className="text-2xl font-bold mb-1">Masuk</h2>
-      <p className="text-sm text-gray-500 mb-6">Selamat datang kembali! 👋</p>
+      <h2 className="font-wordmark text-2xl uppercase tracking-[-0.03em]">Masuk</h2>
+      <p className="mb-6 mt-1 text-sm text-y2k-muted">Selamat datang kembali.</p>
 
       <form onSubmit={handleLogin} className="flex flex-col gap-4">
         <div>
@@ -77,8 +77,8 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div className="bg-red-100 border-2 border-red-400 rounded-xl px-3 py-2 text-sm text-red-700">
-            ⚠️ {error}
+          <div className="rounded-xl border-2 border-brand-red bg-brand-red/10 px-3 py-2 text-sm text-brand-red">
+            {error}
           </div>
         )}
 
@@ -98,9 +98,9 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <p className="text-center text-sm mt-5 text-gray-500">
+      <p className="mt-5 text-center text-sm text-y2k-muted">
         Belum punya akun?{" "}
-        <Link href="/auth/register" className="font-bold text-black underline">
+        <Link href="/auth/register" className="font-display font-800 text-y2k-ink underline decoration-2 underline-offset-2">
           Daftar gratis
         </Link>
       </p>

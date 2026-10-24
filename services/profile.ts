@@ -16,7 +16,12 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 
 export async function updateProfile(
   userId: string,
-  updates: { full_name?: string; monthly_budget?: number; currency?: string }
+  updates: {
+    full_name?: string;
+    avatar_url?: string | null;
+    monthly_budget?: number;
+    currency?: string;
+  }
 ): Promise<Profile> {
   const { data, error } = await supabase
     .from("profiles")

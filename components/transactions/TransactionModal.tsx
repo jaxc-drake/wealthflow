@@ -115,45 +115,44 @@ export default function TransactionModal({
       />
 
       {/* Modal */}
-      <div
-        className="relative w-full max-w-lg bg-white border-3 border-neo-border rounded-t-3xl sm:rounded-3xl p-5 pb-8 sm:pb-5 animate-slide-up"
-        style={{ boxShadow: "0 -6px 0px #1A1A1A" }}
-      >
+      <div className="animate-slide-up relative w-full max-w-lg rounded-t-3xl border-4 border-b-0 border-y2k-ink bg-white p-5 pb-8 shadow-[0_-6px_0_#0A0A0A] sm:rounded-3xl sm:border-b-4 sm:pb-5">
         {/* Header */}
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="font-display font-700 text-xl">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="font-wordmark text-xl uppercase tracking-[-0.03em]">
             {editTransaction ? "Edit Transaksi" : "Tambah Transaksi"}
           </h2>
-          <button onClick={onClose} className="neo-btn-white w-9 h-9 p-0 justify-center">
+          <button
+            onClick={onClose}
+            aria-label="Tutup"
+            className="neo-btn-white h-9 w-9 justify-center p-0"
+          >
             <X size={18} />
           </button>
         </div>
 
         {/* Type Toggle */}
-        <div className="flex gap-2 mb-5 p-1 bg-gray-100 border-3 border-neo-border rounded-xl">
+        <div className="mb-5 flex gap-2 rounded-xl border-3 border-y2k-ink bg-y2k-lavender p-1">
           <button
             type="button"
             onClick={() => { setType("income"); setCategory(""); }}
-            className={`flex-1 py-2.5 rounded-lg font-display font-700 text-sm transition-all ${
+            className={`flex-1 rounded-lg py-2.5 font-display text-xs font-800 uppercase tracking-wide transition-all ${
               type === "income"
-                ? "bg-brand-green border-2 border-neo-border"
-                : "text-neo-muted"
+                ? "border-2 border-y2k-ink bg-brand-lime shadow-hard-sm"
+                : "text-y2k-muted"
             }`}
-            style={type === "income" ? { boxShadow: "2px 2px 0px #1A1A1A" } : {}}
           >
-            📈 Pemasukan
+            Pemasukan
           </button>
           <button
             type="button"
             onClick={() => { setType("expense"); setCategory(""); }}
-            className={`flex-1 py-2.5 rounded-lg font-display font-700 text-sm transition-all ${
+            className={`flex-1 rounded-lg py-2.5 font-display text-xs font-800 uppercase tracking-wide transition-all ${
               type === "expense"
-                ? "bg-brand-pink border-2 border-neo-border"
-                : "text-neo-muted"
+                ? "border-2 border-y2k-ink bg-brand-purple text-white shadow-hard-sm"
+                : "text-y2k-muted"
             }`}
-            style={type === "expense" ? { boxShadow: "2px 2px 0px #1A1A1A" } : {}}
           >
-            📉 Pengeluaran
+            Pengeluaran
           </button>
         </div>
 
@@ -162,7 +161,7 @@ export default function TransactionModal({
           <div>
             <label className="neo-label">Jumlah (Rp)</label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono font-700 text-neo-muted">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono font-700 text-y2k-muted">
                 Rp
               </span>
               <input
@@ -185,14 +184,13 @@ export default function TransactionModal({
                   key={cat}
                   type="button"
                   onClick={() => setCategory(cat)}
-                  className={`px-3 py-1.5 rounded-lg border-2 border-neo-border text-xs font-display font-700 transition-all ${
+                  className={`rounded-lg border-2 border-y2k-ink px-3 py-1.5 font-display text-[11px] font-700 transition-all ${
                     category === cat
                       ? type === "income"
-                        ? "bg-brand-green"
-                        : "bg-brand-pink"
-                      : "bg-white hover:bg-gray-50"
+                        ? "bg-brand-lime shadow-hard-sm"
+                        : "bg-brand-purple text-white shadow-hard-sm"
+                      : "bg-white hover:bg-y2k-lavender/60"
                   }`}
-                  style={category === cat ? { boxShadow: "2px 2px 0px #1A1A1A" } : {}}
                 >
                   {cat}
                 </button>
@@ -203,7 +201,7 @@ export default function TransactionModal({
           {/* Source */}
           <div>
             <label className="neo-label">
-              {type === "income" ? "📥 Sumber Pemasukan" : "📤 Tujuan Pengeluaran"}
+              {type === "income" ? "Sumber Pemasukan" : "Tujuan Pengeluaran"}
             </label>
             <input
               type="text"
@@ -221,7 +219,7 @@ export default function TransactionModal({
 
           {/* Date */}
           <div>
-            <label className="neo-label">📅 Tanggal</label>
+            <label className="neo-label">Tanggal</label>
             <input
               type="date"
               value={date}
@@ -244,16 +242,16 @@ export default function TransactionModal({
           </div>
 
           {error && (
-            <div className="bg-brand-red/20 border-2 border-brand-red rounded-xl px-3 py-2 text-sm font-display text-red-700">
-              ⚠️ {error}
+            <div className="rounded-xl border-2 border-brand-red bg-brand-red/10 px-3 py-2 font-display text-sm text-brand-red">
+              {error}
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className={`w-full h-12 font-display font-700 text-base ${
-              type === "income" ? "neo-btn-green" : "neo-btn-pink"
+            className={`h-12 w-full text-base ${
+              type === "income" ? "neo-btn-green" : "neo-btn-purple"
             }`}
           >
             {loading ? (
